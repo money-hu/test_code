@@ -1,0 +1,14 @@
+@{
+    ViewBag.Title = "Ssrf";
+}
+
+<h3>SSRF请求伪造靶场</h3>
+<ul>
+    <li>HttpWebRequest请求连接</li>
+    <span>HttpWebRequest(url):<a target="_blank" href="./ssrf?url=http://www.baidu.com">./ssrf?url=http://www.baidu.com</a></span>
+</ul>
+
+@if (ViewData["rs"] != null)
+{
+    <textarea rows="8" cols="40">@ViewData["rs"]</textarea>
+}

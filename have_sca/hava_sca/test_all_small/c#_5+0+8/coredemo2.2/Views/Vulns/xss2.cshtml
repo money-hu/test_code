@@ -1,0 +1,26 @@
+
+@using coredemo2._2.Models;
+@{
+    ViewBag.Title = "Xss";
+    var p = (Userinfo)ViewData["rs"];
+}
+
+<h3>XSS存储型跨站脚本靶场</h3>
+<ul>
+    <li>查询Sql的ViewData</li>
+    <span>ViewData["person"]:<a target="_blank" href="./xss2?name=admin">./xss2?name=chen</a></span>
+    <li>更新该用户的备注信息</li>
+    <span><a target="_blank" href="./xss2?name=admin&bz=payload">./xss2?name=admin&bz=payload</a> </span>
+</ul>
+
+
+
+@if (p != null)
+{
+    <br />
+    <h4>ViewData-你的个人信息</h4>
+    <li>姓名:</li>
+    <span>@p.Name</span>
+    <li>年龄:</li>
+    <span>@Html.Raw(p.bz)</span>
+}

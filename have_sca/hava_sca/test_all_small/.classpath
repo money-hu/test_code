@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="python_java_php/python_7+8+7/rpc_client_vs_project/protobuf/examples"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

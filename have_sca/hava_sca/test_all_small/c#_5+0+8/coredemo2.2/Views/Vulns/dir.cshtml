@@ -1,0 +1,19 @@
+
+@{
+    ViewBag.Title = "Dir";
+}
+
+<h3>Dir目录穿越靶场</h3>
+<ul>
+    <li>DirectoryInfo输出内容</li>
+    <span>DirectoryInfo(path):<a target="_blank" href="./dir?path=Views/Vulns/">./dir?path=Views/Vulns/</a></span>
+</ul>
+
+@if (ViewData["files"] != null)
+{
+    <p>输出:</p>
+    foreach (var a in ViewData["files"] as List<string>)
+    {
+        <li>@a</li>
+    }
+}

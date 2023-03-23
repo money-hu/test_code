@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompList">
+    <option name="compList">
+      <list>
+        <ItemVo>
+          <option name="depType">
+            <list>
+              <option value="1" />
+            </list>
+          </option>
+          <option name="gavCoordinate" value="pkg:maven/com.alibaba/fastjson@1.2.72_preview_01" />
+          <option name="id" value="288" />
+          <option name="language" value="Java" />
+          <option name="latestInfo">
+            <BasicInfoVo>
+              <option name="leakHigh" value="0" />
+              <option name="leakLow" value="0" />
+              <option name="leakMid" value="0" />
+              <option name="leakNone" value="0" />
+              <option name="publishDate" value="" />
+              <option name="version" value="" />
+            </BasicInfoVo>
+          </option>
+          <option name="leakCount" value="1" />
+          <option name="leaks">
+            <list>
+              <LeakVo>
+                <option name="cnnvd" value="CNNVD-202206-1037" />
+                <option name="cnvd" value="CNVD-2022-51879" />
+                <option name="cpe" value="" />
+                <option name="cveId" value="CVE-2022-25845" />
+                <option name="cvss2UsingDifficulty" value="容易" />
+                <option name="cvss3UsingDifficulty" value="容易" />
+                <option name="cvssThree" value="9.8" />
+                <option name="cvssTwo" value="6" />
+                <option name="description" value=" 1.2.83 之前的包 com.alibaba:fastjson 容易通过绕过默认的 autoType 关闭限制来反序列化不受信任的数据，这在某些条件下是可能的。 利用此漏洞可以攻击远程服务器。 解决方法：如果无法升级，您可以启用 [safeMode](https://github.com/alibaba/fastjson/wiki/fastjson_safemode)。" />
+                <option name="influenceComponents">
+                  <list>
+                    <InfluenceCompVo>
+                      <option name="level" value="严重" />
+                      <option name="name" value="com.alibaba.fastjson" />
+                      <option name="version" value="1.2.72_preview_01" />
+                    </InfluenceCompVo>
+                  </list>
+                </option>
+                <option name="influenceRange" value="较小" />
+                <option name="level" value="严重" />
+                <option name="moresecId" value="MORESEC-2022-25845" />
+                <option name="name" value="Fastjson代码执行漏洞" />
+                <option name="pocExists" value="存在" />
+                <option name="references">
+                  <list>
+                    <option value="https://cxsecurity.com/cveshow/CVE-2022-25845/" />
+                  </list>
+                </option>
+                <option name="solution" value="目前厂商已发布升级补丁以修复漏洞，补丁获取链接：&#13;&#10;https://github.com/alibaba/fastjson/wiki/security_update_20220523" />
+              </LeakVo>
+            </list>
+          </option>
+          <option name="level" value="严重" />
+          <option name="licenses">
+            <list>
+              <LicensesVo>
+                <option name="explain" value="(1) [安全]本授权要求在源文件中包含授权文本和所有版权声明的副本。这个义务还意味着许可证或通知文本文件必须与相关代码在同一个目录中。&#13;&#10;(2) [安全]本授权要求在产品文档中包含授权文本和所有版权声明的副本。&#13;&#10;(3) [安全]本许可证要求，未经事先明确的书面许可，不得使用拥有被许可软件的组织的名称、贡献者的名称或被许可软件的名称来背书或推广由被许可软件衍生的产品。&#13;&#10;(4) [安全]本授权要求对授权软件的原始源代码的任何更改必须在源代码中记录。&#13;&#10;(5) [安全]本授权授予了在原授权下获得的部分或全部权利，并允许使用已授权代码在一个凌驾性授权下获得许可，尽管属性等义务通常仍然适用。这种许可是典型的许可许可，但在copyleft和专有许可中通常不被允许。分许可的权利在某些许可文本中有明确规定&#13;&#10;(6) [安全]本授权文本包括一个保证免责声明。&#13;&#10;(7) [安全]本授权声明，您同意就任何因您使用或发布授权软件而产生的损失、损害、索赔或诉讼(包括律师费)，向许可方提供赔偿，使其免受损害并为其辩护。&#13;&#10;(8) [安全]本授权声明作者在不限制接受者所持有专利的使用的情况下授予专利权。" />
+                <option name="license" value="APACHE-2.0" />
+                <option name="licenseLevel" value="安全" />
+                <option name="licenseUrl" value="https://spdx.org/licenses/Apache-2.0.html" />
+                <option name="url" value="[&quot;https://spdx.org/licenses/Apache-2.0.html&quot;]" />
+              </LicensesVo>
+            </list>
+          </option>
+          <option name="name" value="com.alibaba.fastjson" />
+          <option name="quoteCount" value="0" />
+          <option name="recommendedInfo">
+            <BasicInfoVo>
+              <option name="leakHigh" value="0" />
+              <option name="leakLow" value="0" />
+              <option name="leakMid" value="0" />
+              <option name="leakNone" value="0" />
+              <option name="publishDate" value="" />
+              <option name="version" value="" />
+            </BasicInfoVo>
+          </option>
+          <option name="riskType">
+            <list>
+              <option value="非最新版" />
+              <option value="存在漏洞" />
+            </list>
+          </option>
+          <currentVersion>1.2.72_preview_01</currentVersion>
+        </ItemVo>
+      </list>
+    </option>
+  </component>
+</project>

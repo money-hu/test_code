@@ -1,0 +1,17 @@
+@{
+    ViewBag.Title = "Command";
+}
+
+<h3>Command注入靶场</h3>
+<ul>
+    <li>DirectoryInfo输出内容</li>
+    <span>DirectoryInfo(path):<a target="_blank" href="./command?cmd=ipconfig">./command?cmd=ipconfig</a></span>
+</ul>
+
+
+<p>输出数据:</p>
+@if (ViewData["rs"] != null)
+{
+    <span>@ViewData["rs"]</span>
+}
+

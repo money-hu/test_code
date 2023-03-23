@@ -1,0 +1,49 @@
+
+@using coredemo2._2.Models;
+@{
+    ViewBag.Title = "Xss";
+    var p = (Userinfo)ViewData["person"];
+    var message = ViewBag.Message;
+}
+
+<h3>XSS跨站脚本靶场</h3>
+<ul>
+    <li>ViewData输出内容</li>
+    <span>ViewData["person"]:<a target="_blank" href="./xss?name=chen&age=18">./xss?name=chen&age=18</a></span>
+    <li>ViewBag输出内容</li>
+    <span>ViewBag.Message:<a target="_blank" href="./xss?message=chen">./xss?message=chen</a></span>
+    <li>Models输出内容</li>
+    <span>View(person):<a target="_blank" href="./xss?name=chen&age=18&mode=true">./xss?name=chen&age=18&mode=true</a></span>
+</ul>
+
+
+
+@if (p != null)
+{
+    <br />
+    <h4>ViewData-你的个人信息</h4>
+    <li>姓名:</li>
+    <span>@p.Name</span>
+    <li>年龄:</li>
+    <span>@p.Age</span>
+}
+else if (message != null)
+{
+    <br />
+    <h4>ViewBag-你的个人信息</h4>
+    <li>姓名:</li>
+    <span>@message</span>
+}
+else if (Model != null)
+{
+    <br />
+    <h4>Models-你的个人信息</h4>
+    <li>姓名:</li>
+    <span>@Html.Raw(Model.Name)</span>
+    <li>年龄:</li>
+    <span>@Model.Age</span>
+}
+else
+{
+    <br />
+}

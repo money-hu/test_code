@@ -1,0 +1,25 @@
+
+@{
+    ViewBag.Title = "LdapLogin";
+}
+
+<h3>LdapLogin注入靶场</h3>
+<ul>
+    <li>Xpath登录框</li>
+    <span>Username: *)(uid=*))(|(uid=*</span>
+    <span>Password: root</span>
+    <span>Query: (&(ou=*)(uid=*))(|(uid=*)(userPassword=root))</span>
+</ul>
+
+<form action="" method="post">
+    Username:<input type="text" id="username" name="username" />
+    <br />
+    Password:<input type="password" id="password" name="password" />
+    <br />
+    <input type="submit" value="提交" />
+</form>
+
+@if (ViewData["error"] != null)
+{
+    <span>@ViewData["error"]</span>
+}

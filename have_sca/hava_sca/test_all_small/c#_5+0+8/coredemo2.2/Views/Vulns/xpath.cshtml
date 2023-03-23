@@ -1,0 +1,17 @@
+
+@{
+    ViewBag.Title = "Xpath";
+}
+
+<h3>Xpath注入靶场</h3>
+<ul>
+    <li>Xpath登录框</li>
+</ul>
+
+<form action="/Vulns/xpaths" method="post">
+    Username:<input type="text" id="username" name="username" />
+    <br />
+    Password:<input type="password" id="password" name="password" />
+    <br />
+    <input type="submit" value="提交" />
+</form>

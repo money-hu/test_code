@@ -1,0 +1,16 @@
+
+@{
+    ViewBag.Title = "Log";
+}
+
+<h3>Log4Net注入靶场</h3>
+<ul>
+    <li>WriteInfo输出内容</li>
+    <span>WriteInfo(name):<a target="_blank" href="./log?guestname=admin">./log?guestname=admin</a></span>
+</ul>
+
+<p>日志输出:</p>
+@if (ViewData["rs"] != null)
+{
+    <span>@ViewData["rs"]</span>
+}

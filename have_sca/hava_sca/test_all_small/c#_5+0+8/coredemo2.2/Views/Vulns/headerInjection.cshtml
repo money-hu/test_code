@@ -1,0 +1,15 @@
+
+@{
+    ViewBag.Title = "HeaderInjection";
+}
+
+<h3>HeaderInjection靶场</h3>
+<ul>
+    <li>DirectoryInfo输出内容</li>
+    <span>DirectoryInfo(path):<a target="_blank" href="./headerInjection?name=testName&value=testvalue">./headerInjection?name=testName&value=testvalue</a></span>
+</ul>
+
+@if (ViewData["rs"] != null)
+{
+    <span>@ViewData["rs"]</span>
+}

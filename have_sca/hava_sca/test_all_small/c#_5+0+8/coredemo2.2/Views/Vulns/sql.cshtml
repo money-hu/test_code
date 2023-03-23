@@ -1,0 +1,25 @@
+@using coredemo2._2.Models;
+@{
+    ViewBag.Title = "Sql";
+    var p = (Userinfo)ViewData["rs"];
+}
+
+<h3>MSSQL注入靶场</h3>
+<ul>
+    <li>DirectoryInfo输出内容</li>
+    <span>DirectoryInfo(path):<a target="_blank" href="./sql?name=admin">./sql?name=admin</a></span>
+</ul>
+
+@if (ViewData["error"] != null)
+{
+    <span>@ViewData["error"]</span>
+}
+else if (p != null)
+{
+    <br />
+    <h4>你的个人信息</h4>
+    <li>姓名:</li>
+    <span>@p.Name</span>
+    <li>密码:</li>
+    <span>@p.Password</span>
+}

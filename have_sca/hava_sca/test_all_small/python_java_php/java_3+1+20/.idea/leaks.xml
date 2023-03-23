@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LeakList">
+    <option name="leakList">
+      <list>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="在以下情况下会发生 Log Forging 的漏洞：&#10;&#10;1. 数据从一个不可信赖的数据源进入应用程序。&#10;&#10;2. 数据写入到应用程序或系统日志文件中。&#10;&#10;为了便于以后的审阅、统计数据收集或调试，应用程序通常使用日志文件来储存事件或事务的历史记录。根据应用程序自身的特性，审阅日志文件可在必要时手动执行，也可以自动执行，即利用工具自动挑选日志中的重要事件或带有某种倾向性的信息。&#10;&#10;如果攻击者可以向随后会被逐字记录到日志文件的应用程序提供数据，则可能会妨碍或误导日志文件的解读。最理想的情况是，攻击者可能通过向应用程序提供包括适当字符的输入，在日志文件中插入错误的条目。如果日志文件是自动处理的，那么攻击者可以破坏文件格式或注入意外的字符，从而使文件无法使用。更阴险的攻击可能会导致日志文件中的统计信息发生偏差。通过伪造或其他方式，受到破坏的日志文件可用于掩护攻击者的跟踪轨迹，甚至还可以牵连第三方来执行恶意行为 [1]。最糟糕的情况是，攻击者可能向日志文件注入代码或者其他命令，利用日志处理实用程序中的漏洞 [2]。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:193" />
+          <option name="id" value="805" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="log伪造漏洞" />
+          <option name="repairExample" value="错误代码：&#10;例 1： 下列 Web 应用程序代码会尝试从一个请求对象中读取整数值。如果数值未被解析为整数，输入就会被记录到日志中，附带一条提示相关情况的错误消息。 &#10;&#10;...&#10;String val = request.getParameter(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt(val);&#10;}catch (NumberFormatException nfe) {&#10;log.info(&quot;Failed to parse val = &quot; + val);&#10;}&#10;...&#10;&#10;如果用户为“val”提交字符串“twenty-one”，则日志中会记录以下条目：INFO: Failed to parse val=twenty-one然而，如果攻击者提交字符串“twenty-one%0a%0aINFO:+User+logged+out%3dbadguy”，则日志中会记录以下条目：INFO: Failed to parse val=twenty-one INFO: User logged out=badguy 显然，攻击者可以使用同样的机制插入任意日志条目。有些人认为在移动世界中，典型的 Web 应用程序漏洞（如 Log Forging）是无意义的 -- &#10;为什么用户要攻击自己？但是，谨记移动平台的本质是从各种来源下载并在相同设备上运行的应用程序。恶意软件在银行应用程序附近运行的可能性很高，它们会强制扩展移动应用程序的攻击面（包括跨进程通信）。&#10;正确代码：&#10;可以按以下方式将例 1 重写为与 NumberFormatException 对应的预定义日志条目：&#10;...&#10;public static final String NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;String val = request.getParameter(&quot;val&quot;);&#10;         try {                 &#10;&#9;&#9;&#9;t value = Integer.parseInt(val);&#10;         }catch (NumberFormatException nfe) {&#10;&#9;&#9;&#9;log.info(NFE);&#10;         }&#10;...&#10;&#10;错误代码：&#10;例 2：以下代码将例 1 改编为适用于 Android 平台。&#10;&#10;...&#10;String val = this.getIntent().getExtras().getString(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt();}&#10;catch (NumberFormatException nfe) {Log.e(TAG, &quot;Failed to parse val = &quot; + val);}&#10;...&#10;&#10;正确代码：&#10;下面是 Android 的等同内容：&#10;...&#10;public static final String NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;String val = this.getIntent().getExtras().getString(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt();&#10;}catch (NumberFormatException nfe) {&#10;Log.e(TAG, NFE);&#10;}&#10;..." />
+          <option name="repairTip" value="使用间接方法防止 Log Forging 攻击：创建一组与不同事件一一对应的合法日志条目，这些条目必须记录在日志中，并且仅记录该组条目。要捕获动态内容（如用户注销系统），请务必使用由服务器控制的数值，而非由用户提供的数据。这就确保了日志条目中绝不会直接使用由用户提供的输入。&#10;在某些情况下，这个方法有些不切实际，因为这样一组合法的日志条目实在太大或是太复杂了。这种情况下，开发者往往又会退而采用黑名单方法。在输入之前，黑名单会有选择地拒绝或避免潜在的危险字符。然而，不安全字符列表很快就会不完善或过时。更好的方法是创建一份白名单，允许其中的字符出现在日志条目中，并且只接受完全由这些经认可的字符组成的输入。在大多数 Log Forging 攻击中，最关键的字符是“\ n”（换行符），该字符决不能出现在日志条目白名单中。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="在以下情况下会发生 Log Forging 的漏洞：&#10;&#10;1. 数据从一个不可信赖的数据源进入应用程序。&#10;&#10;2. 数据写入到应用程序或系统日志文件中。&#10;&#10;为了便于以后的审阅、统计数据收集或调试，应用程序通常使用日志文件来储存事件或事务的历史记录。根据应用程序自身的特性，审阅日志文件可在必要时手动执行，也可以自动执行，即利用工具自动挑选日志中的重要事件或带有某种倾向性的信息。&#10;&#10;如果攻击者可以向随后会被逐字记录到日志文件的应用程序提供数据，则可能会妨碍或误导日志文件的解读。最理想的情况是，攻击者可能通过向应用程序提供包括适当字符的输入，在日志文件中插入错误的条目。如果日志文件是自动处理的，那么攻击者可以破坏文件格式或注入意外的字符，从而使文件无法使用。更阴险的攻击可能会导致日志文件中的统计信息发生偏差。通过伪造或其他方式，受到破坏的日志文件可用于掩护攻击者的跟踪轨迹，甚至还可以牵连第三方来执行恶意行为 [1]。最糟糕的情况是，攻击者可能向日志文件注入代码或者其他命令，利用日志处理实用程序中的漏洞 [2]。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:306" />
+          <option name="id" value="806" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="log伪造漏洞" />
+          <option name="repairExample" value="错误代码：&#10;例 1： 下列 Web 应用程序代码会尝试从一个请求对象中读取整数值。如果数值未被解析为整数，输入就会被记录到日志中，附带一条提示相关情况的错误消息。 &#10;&#10;...&#10;String val = request.getParameter(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt(val);&#10;}catch (NumberFormatException nfe) {&#10;log.info(&quot;Failed to parse val = &quot; + val);&#10;}&#10;...&#10;&#10;如果用户为“val”提交字符串“twenty-one”，则日志中会记录以下条目：INFO: Failed to parse val=twenty-one然而，如果攻击者提交字符串“twenty-one%0a%0aINFO:+User+logged+out%3dbadguy”，则日志中会记录以下条目：INFO: Failed to parse val=twenty-one INFO: User logged out=badguy 显然，攻击者可以使用同样的机制插入任意日志条目。有些人认为在移动世界中，典型的 Web 应用程序漏洞（如 Log Forging）是无意义的 -- &#10;为什么用户要攻击自己？但是，谨记移动平台的本质是从各种来源下载并在相同设备上运行的应用程序。恶意软件在银行应用程序附近运行的可能性很高，它们会强制扩展移动应用程序的攻击面（包括跨进程通信）。&#10;正确代码：&#10;可以按以下方式将例 1 重写为与 NumberFormatException 对应的预定义日志条目：&#10;...&#10;public static final String NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;String val = request.getParameter(&quot;val&quot;);&#10;         try {                 &#10;&#9;&#9;&#9;t value = Integer.parseInt(val);&#10;         }catch (NumberFormatException nfe) {&#10;&#9;&#9;&#9;log.info(NFE);&#10;         }&#10;...&#10;&#10;错误代码：&#10;例 2：以下代码将例 1 改编为适用于 Android 平台。&#10;&#10;...&#10;String val = this.getIntent().getExtras().getString(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt();}&#10;catch (NumberFormatException nfe) {Log.e(TAG, &quot;Failed to parse val = &quot; + val);}&#10;...&#10;&#10;正确代码：&#10;下面是 Android 的等同内容：&#10;...&#10;public static final String NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;String val = this.getIntent().getExtras().getString(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt();&#10;}catch (NumberFormatException nfe) {&#10;Log.e(TAG, NFE);&#10;}&#10;..." />
+          <option name="repairTip" value="使用间接方法防止 Log Forging 攻击：创建一组与不同事件一一对应的合法日志条目，这些条目必须记录在日志中，并且仅记录该组条目。要捕获动态内容（如用户注销系统），请务必使用由服务器控制的数值，而非由用户提供的数据。这就确保了日志条目中绝不会直接使用由用户提供的输入。&#10;在某些情况下，这个方法有些不切实际，因为这样一组合法的日志条目实在太大或是太复杂了。这种情况下，开发者往往又会退而采用黑名单方法。在输入之前，黑名单会有选择地拒绝或避免潜在的危险字符。然而，不安全字符列表很快就会不完善或过时。更好的方法是创建一份白名单，允许其中的字符出现在日志条目中，并且只接受完全由这些经认可的字符组成的输入。在大多数 Log Forging 攻击中，最关键的字符是“\ n”（换行符），该字符决不能出现在日志条目白名单中。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="在以下情况下会发生 Log Forging 的漏洞：&#10;&#10;1. 数据从一个不可信赖的数据源进入应用程序。&#10;&#10;2. 数据写入到应用程序或系统日志文件中。&#10;&#10;为了便于以后的审阅、统计数据收集或调试，应用程序通常使用日志文件来储存事件或事务的历史记录。根据应用程序自身的特性，审阅日志文件可在必要时手动执行，也可以自动执行，即利用工具自动挑选日志中的重要事件或带有某种倾向性的信息。&#10;&#10;如果攻击者可以向随后会被逐字记录到日志文件的应用程序提供数据，则可能会妨碍或误导日志文件的解读。最理想的情况是，攻击者可能通过向应用程序提供包括适当字符的输入，在日志文件中插入错误的条目。如果日志文件是自动处理的，那么攻击者可以破坏文件格式或注入意外的字符，从而使文件无法使用。更阴险的攻击可能会导致日志文件中的统计信息发生偏差。通过伪造或其他方式，受到破坏的日志文件可用于掩护攻击者的跟踪轨迹，甚至还可以牵连第三方来执行恶意行为 [1]。最糟糕的情况是，攻击者可能向日志文件注入代码或者其他命令，利用日志处理实用程序中的漏洞 [2]。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:306" />
+          <option name="id" value="807" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="log伪造漏洞" />
+          <option name="repairExample" value="错误代码：&#10;例 1： 下列 Web 应用程序代码会尝试从一个请求对象中读取整数值。如果数值未被解析为整数，输入就会被记录到日志中，附带一条提示相关情况的错误消息。 &#10;&#10;...&#10;String val = request.getParameter(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt(val);&#10;}catch (NumberFormatException nfe) {&#10;log.info(&quot;Failed to parse val = &quot; + val);&#10;}&#10;...&#10;&#10;如果用户为“val”提交字符串“twenty-one”，则日志中会记录以下条目：INFO: Failed to parse val=twenty-one然而，如果攻击者提交字符串“twenty-one%0a%0aINFO:+User+logged+out%3dbadguy”，则日志中会记录以下条目：INFO: Failed to parse val=twenty-one INFO: User logged out=badguy 显然，攻击者可以使用同样的机制插入任意日志条目。有些人认为在移动世界中，典型的 Web 应用程序漏洞（如 Log Forging）是无意义的 -- &#10;为什么用户要攻击自己？但是，谨记移动平台的本质是从各种来源下载并在相同设备上运行的应用程序。恶意软件在银行应用程序附近运行的可能性很高，它们会强制扩展移动应用程序的攻击面（包括跨进程通信）。&#10;正确代码：&#10;可以按以下方式将例 1 重写为与 NumberFormatException 对应的预定义日志条目：&#10;...&#10;public static final String NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;String val = request.getParameter(&quot;val&quot;);&#10;         try {                 &#10;&#9;&#9;&#9;t value = Integer.parseInt(val);&#10;         }catch (NumberFormatException nfe) {&#10;&#9;&#9;&#9;log.info(NFE);&#10;         }&#10;...&#10;&#10;错误代码：&#10;例 2：以下代码将例 1 改编为适用于 Android 平台。&#10;&#10;...&#10;String val = this.getIntent().getExtras().getString(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt();}&#10;catch (NumberFormatException nfe) {Log.e(TAG, &quot;Failed to parse val = &quot; + val);}&#10;...&#10;&#10;正确代码：&#10;下面是 Android 的等同内容：&#10;...&#10;public static final String NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;String val = this.getIntent().getExtras().getString(&quot;val&quot;);&#10;try {&#10;int value = Integer.parseInt();&#10;}catch (NumberFormatException nfe) {&#10;Log.e(TAG, NFE);&#10;}&#10;..." />
+          <option name="repairTip" value="使用间接方法防止 Log Forging 攻击：创建一组与不同事件一一对应的合法日志条目，这些条目必须记录在日志中，并且仅记录该组条目。要捕获动态内容（如用户注销系统），请务必使用由服务器控制的数值，而非由用户提供的数据。这就确保了日志条目中绝不会直接使用由用户提供的输入。&#10;在某些情况下，这个方法有些不切实际，因为这样一组合法的日志条目实在太大或是太复杂了。这种情况下，开发者往往又会退而采用黑名单方法。在输入之前，黑名单会有选择地拒绝或避免潜在的危险字符。然而，不安全字符列表很快就会不完善或过时。更好的方法是创建一份白名单，允许其中的字符出现在日志条目中，并且只接受完全由这些经认可的字符组成的输入。在大多数 Log Forging 攻击中，最关键的字符是“\ n”（换行符），该字符决不能出现在日志条目白名单中。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="将未经验证的用户输入写入日志文件可致使攻击者伪造日志条目或将恶意信息内容注入日志。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:173" />
+          <option name="id" value="809" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="日志伪造" />
+          <option name="repairExample" value="使用间接方法防止 Log Forging 攻击：创建一组与不同事件一一对应的合法日志条目，这些条目必须记录在日志中，并且仅记录该组条目。要捕获动态内容（如用户注销系统），请务必使用由服务器控制的数值，而非由用户提供的数据。这就确保了日志条目中绝不会直接使用由用户提供的输入。&#10;&#10;可以按以下方式将例 1 重写为与 NumberFormatException 对应的预定义日志条目：&#10;&#10;...&#10;NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;...&#10;val = request.GET[&quot;val&quot;]&#10;try:&#10;  int_value = int(val)&#10;except:&#10;  logger.debug(NFE)&#10;...&#10;&#10;在某些情况下，这个方法有些不切实际，因为这样一组合法的日志条目实在太大或是太复杂了。这种情况下，开发者往往又会退而采用黑名单方法。在输入之前，黑名单会有选择地拒绝或避免潜在的危险字符。然而，不安全字符列表很快就会不完善或过时。更好的方法是创建一份白名单，允许其中的字符出现在日志条目中，并且只接受完全由这些经认可的字符组成的输入。在大多数 Log Forging 攻击中，最关键的字符是“\n”（换行符），该字符决不能出现在日志条目白名单中。" />
+          <option name="repairTip" value="在以下情况下会发生 Log Forging 的漏洞：&#10;&#10;1. 数据从一个不可信赖的数据源进入应用程序。2. 数据写入到应用程序或系统日志文件中。为了便于以后的审阅、统计数据收集或调试，应用程序通常使用日志文件来储存事件或事务的历史记录。根据应用程序自身的特性，审阅日志文件可在必要时手动执行，也可以自动执行，即利用工具自动挑选日志中的重要事件或带有某种倾向性的信息。&#10;&#10;如果攻击者可以向随后会被逐字记录到日志文件的应用程序提供数据，则可能会妨碍或误导日志文件的解读。最理想的情况是，攻击者可能通过向应用程序提供包括适当字符的输入，在日志文件中插入错误的条目。如果日志文件是自动处理的，那么攻击者就可以通过破坏文件格式或注入意外的字符，从而使文件无法使用。更阴险的攻击可能会导致日志文件中的统计信息发生偏差。通过伪造或其他方式，受到破坏的日志文件可用于掩护攻击者的跟踪轨迹，甚至还可以牵连第三方来执行恶意行为 [1]。最糟糕的情况是，攻击者可能向日志文件注入代码或者其他命令，利用日志处理实用程序中的漏洞 [2]。&#10;&#10;例 1： 下列 Web 应用程序代码会尝试从一个请求对象中读取整数值。如果数值未被解析为整数，输入就会被记录到日志中，附带一条提示相关情况的错误消息。&#10;&#10;...&#10;val = request.GET[&quot;val&quot;]&#10;try:&#10;  int_value = int(val)&#10;except:&#10;  logger.debug(&quot;Failed to parse val = &quot; + val)&#10;...&#10;&#10;如果用户为“val”提交字符串“twenty-one”，则日志中会记录以下条目：&#10;&#10;INFO: Failed to parse val=twenty-one&#10;&#10;然而，如果攻击者提交字符串“twenty-one%0a%0aINFO:+User+logged+out%3dbadguy”，则日志中会记录以下条目：&#10;&#10;INFO: Failed to parse val=twenty-one&#10;&#10;INFO: User logged out=badguy&#10;&#10;显然，攻击者可以使用同样的机制插入任意日志条目。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="将未经验证的用户输入写入日志文件可致使攻击者伪造日志条目或将恶意信息内容注入日志。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:205" />
+          <option name="id" value="810" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="日志伪造" />
+          <option name="repairExample" value="使用间接方法防止 Log Forging 攻击：创建一组与不同事件一一对应的合法日志条目，这些条目必须记录在日志中，并且仅记录该组条目。要捕获动态内容（如用户注销系统），请务必使用由服务器控制的数值，而非由用户提供的数据。这就确保了日志条目中绝不会直接使用由用户提供的输入。&#10;&#10;可以按以下方式将例 1 重写为与 NumberFormatException 对应的预定义日志条目：&#10;&#10;...&#10;NFE = &quot;Failed to parse val. The input is required to be an integer value.&quot;&#10;...&#10;val = request.GET[&quot;val&quot;]&#10;try:&#10;  int_value = int(val)&#10;except:&#10;  logger.debug(NFE)&#10;...&#10;&#10;在某些情况下，这个方法有些不切实际，因为这样一组合法的日志条目实在太大或是太复杂了。这种情况下，开发者往往又会退而采用黑名单方法。在输入之前，黑名单会有选择地拒绝或避免潜在的危险字符。然而，不安全字符列表很快就会不完善或过时。更好的方法是创建一份白名单，允许其中的字符出现在日志条目中，并且只接受完全由这些经认可的字符组成的输入。在大多数 Log Forging 攻击中，最关键的字符是“\n”（换行符），该字符决不能出现在日志条目白名单中。" />
+          <option name="repairTip" value="在以下情况下会发生 Log Forging 的漏洞：&#10;&#10;1. 数据从一个不可信赖的数据源进入应用程序。2. 数据写入到应用程序或系统日志文件中。为了便于以后的审阅、统计数据收集或调试，应用程序通常使用日志文件来储存事件或事务的历史记录。根据应用程序自身的特性，审阅日志文件可在必要时手动执行，也可以自动执行，即利用工具自动挑选日志中的重要事件或带有某种倾向性的信息。&#10;&#10;如果攻击者可以向随后会被逐字记录到日志文件的应用程序提供数据，则可能会妨碍或误导日志文件的解读。最理想的情况是，攻击者可能通过向应用程序提供包括适当字符的输入，在日志文件中插入错误的条目。如果日志文件是自动处理的，那么攻击者就可以通过破坏文件格式或注入意外的字符，从而使文件无法使用。更阴险的攻击可能会导致日志文件中的统计信息发生偏差。通过伪造或其他方式，受到破坏的日志文件可用于掩护攻击者的跟踪轨迹，甚至还可以牵连第三方来执行恶意行为 [1]。最糟糕的情况是，攻击者可能向日志文件注入代码或者其他命令，利用日志处理实用程序中的漏洞 [2]。&#10;&#10;例 1： 下列 Web 应用程序代码会尝试从一个请求对象中读取整数值。如果数值未被解析为整数，输入就会被记录到日志中，附带一条提示相关情况的错误消息。&#10;&#10;...&#10;val = request.GET[&quot;val&quot;]&#10;try:&#10;  int_value = int(val)&#10;except:&#10;  logger.debug(&quot;Failed to parse val = &quot; + val)&#10;...&#10;&#10;如果用户为“val”提交字符串“twenty-one”，则日志中会记录以下条目：&#10;&#10;INFO: Failed to parse val=twenty-one&#10;&#10;然而，如果攻击者提交字符串“twenty-one%0a%0aINFO:+User+logged+out%3dbadguy”，则日志中会记录以下条目：&#10;&#10;INFO: Failed to parse val=twenty-one&#10;&#10;INFO: User logged out=badguy&#10;&#10;显然，攻击者可以使用同样的机制插入任意日志条目。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="揭示系统数据或调试信息有助于攻击者了解系统并制定攻击计划。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:193" />
+          <option name="id" value="812" />
+          <option name="leakLevel" value="提示" />
+          <option name="leakName" value="内部信息泄露" />
+          <option name="repairExample" value="编写错误消息时，始终要牢记安全性。在编码的过程中，尽量避免使用繁复的消息，提倡使用简短的错误消息。限制生成与存储繁复的输出数据将有助于管理员和程序员诊断问题的所在。此外，还要留意有关调试的跟踪信息，有时它可能出现在不明显的位置（例如嵌入在错误页 HTML 代码的注释行中）。&#10;&#10;即便是并未揭示栈踪迹或数据库转储的简短错误消息，也有可能帮助攻击者发起攻击。例如，“Access Denied”（拒绝访问）消息可以揭示系统中存在一个文件或用户。" />
+          <option name="repairTip" value="通过打印或日志功能将系统数据或调试信息发送到本地文件、控制台或屏幕时，就会发生内部信息泄露。&#10;&#10;例 1：以下代码针对标准的错误流输出了一个异常：&#10;&#10;try:&#10;    f = open('myfile.txt')&#10;    s = f.readline()&#10;    i = int(s.strip())&#10;except IOError as e:&#10;    sys.stderr.write(&quot;I/O error({0}): {1}&quot;.format(e.errno, e.strerror))&#10;except ValueError:&#10;    sys.stderr.write(&quot;Could not convert data to an integer.&quot;)&#10;except:&#10;    sys.stderr.write(&quot;Unexpected error:&quot;, sys.exc_info()[0])&#10;    raise&#10;&#10;依据这一系统配置，该信息可转储到控制台，写成日志文件，或者显示给用户。在某些情况下，该错误消息恰好可以告诉攻击者入侵这一系统的可能性究竟有多大。例如，一个数据库错误消息可以揭示应用程序容易受到 SQL Injection 攻击。其他的错误消息可以揭示有关该系统的更多间接线索。在上述例子中，泄露的信息可能会暗示操作系统的类型、系统上安装了哪些应用程序，以及管理员在配置应用程序时做了哪些方面的努力。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="揭示系统数据或调试信息有助于攻击者了解系统并制定攻击计划。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:306" />
+          <option name="id" value="813" />
+          <option name="leakLevel" value="提示" />
+          <option name="leakName" value="内部信息泄露" />
+          <option name="repairExample" value="编写错误消息时，始终要牢记安全性。在编码的过程中，尽量避免使用繁复的消息，提倡使用简短的错误消息。限制生成与存储繁复的输出数据将有助于管理员和程序员诊断问题的所在。此外，还要留意有关调试的跟踪信息，有时它可能出现在不明显的位置（例如嵌入在错误页 HTML 代码的注释行中）。&#10;&#10;即便是并未揭示栈踪迹或数据库转储的简短错误消息，也有可能帮助攻击者发起攻击。例如，“Access Denied”（拒绝访问）消息可以揭示系统中存在一个文件或用户。" />
+          <option name="repairTip" value="通过打印或日志功能将系统数据或调试信息发送到本地文件、控制台或屏幕时，就会发生内部信息泄露。&#10;&#10;例 1：以下代码针对标准的错误流输出了一个异常：&#10;&#10;try:&#10;    f = open('myfile.txt')&#10;    s = f.readline()&#10;    i = int(s.strip())&#10;except IOError as e:&#10;    sys.stderr.write(&quot;I/O error({0}): {1}&quot;.format(e.errno, e.strerror))&#10;except ValueError:&#10;    sys.stderr.write(&quot;Could not convert data to an integer.&quot;)&#10;except:&#10;    sys.stderr.write(&quot;Unexpected error:&quot;, sys.exc_info()[0])&#10;    raise&#10;&#10;依据这一系统配置，该信息可转储到控制台，写成日志文件，或者显示给用户。在某些情况下，该错误消息恰好可以告诉攻击者入侵这一系统的可能性究竟有多大。例如，一个数据库错误消息可以揭示应用程序容易受到 SQL Injection 攻击。其他的错误消息可以揭示有关该系统的更多间接线索。在上述例子中，泄露的信息可能会暗示操作系统的类型、系统上安装了哪些应用程序，以及管理员在配置应用程序时做了哪些方面的努力。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="揭示系统数据或调试信息有助于攻击者了解系统并制定攻击计划。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:307" />
+          <option name="id" value="814" />
+          <option name="leakLevel" value="提示" />
+          <option name="leakName" value="内部信息泄露" />
+          <option name="repairExample" value="编写错误消息时，始终要牢记安全性。在编码的过程中，尽量避免使用繁复的消息，提倡使用简短的错误消息。限制生成与存储繁复的输出数据将有助于管理员和程序员诊断问题的所在。此外，还要留意有关调试的跟踪信息，有时它可能出现在不明显的位置（例如嵌入在错误页 HTML 代码的注释行中）。&#10;&#10;即便是并未揭示栈踪迹或数据库转储的简短错误消息，也有可能帮助攻击者发起攻击。例如，“Access Denied”（拒绝访问）消息可以揭示系统中存在一个文件或用户。" />
+          <option name="repairTip" value="通过打印或日志功能将系统数据或调试信息发送到本地文件、控制台或屏幕时，就会发生内部信息泄露。&#10;&#10;例 1：以下代码针对标准的错误流输出了一个异常：&#10;&#10;try:&#10;    f = open('myfile.txt')&#10;    s = f.readline()&#10;    i = int(s.strip())&#10;except IOError as e:&#10;    sys.stderr.write(&quot;I/O error({0}): {1}&quot;.format(e.errno, e.strerror))&#10;except ValueError:&#10;    sys.stderr.write(&quot;Could not convert data to an integer.&quot;)&#10;except:&#10;    sys.stderr.write(&quot;Unexpected error:&quot;, sys.exc_info()[0])&#10;    raise&#10;&#10;依据这一系统配置，该信息可转储到控制台，写成日志文件，或者显示给用户。在某些情况下，该错误消息恰好可以告诉攻击者入侵这一系统的可能性究竟有多大。例如，一个数据库错误消息可以揭示应用程序容易受到 SQL Injection 攻击。其他的错误消息可以揭示有关该系统的更多间接线索。在上述例子中，泄露的信息可能会暗示操作系统的类型、系统上安装了哪些应用程序，以及管理员在配置应用程序时做了哪些方面的努力。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="在同一数据结构中将可信赖数据和不可信赖数据混合在一起会导致程序员错误地信赖未验证的数据。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:183" />
+          <option name="id" value="815" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="违反信任边界" />
+          <option name="repairExample" value="在应用程序中定义信任边界。不要在数据结构中储存在某些环境下受信任而在其他环境下又转而不可信赖的数据。应尽量减少数据跨越信任边界的方式。&#10;&#10;在处理输入之前，需要通过一系列用户交互来累积输入时，有时就会出现 Trust Boundary Violation 漏洞。所以，在得出所有数据之前，不可能进行完整的输入验证。在这种情况下，维护信任边界仍然是非常重要的。应将不可信赖的数据添加到一个不受信任数据结构中，待验证后，再移至可信赖的区域。" />
+          <option name="repairTip" value="信任边界可以理解为在程序中划分的分界线。分界线的一边是不可信赖的数据。分界线的另一边则是被认定为是可信赖的数据。验证逻辑的用途是允许数据安全地跨越信任边界 — 从不可信赖的一边移动到可信赖的另一边。&#10;&#10;当程序使可信赖和不可信赖的分界线模糊不清时，就会发生 Trust Boundary Violation 漏洞。发生这种错误的最普遍方式是允许可信赖的数据和不可信赖的数据共同混合在同一数据结构中。&#10;&#10;示例：以下 Python 代码接受了一个 HTTP 请求，并在 HTTP 会话对象中存储 username 参数，再进行检查以确保该用户已经过了验证。&#10;&#10;uname = request.GET['username']&#10;request.session['username'] = uname&#10;&#10;若不对信任边界进行合理构建及良好维护，则程序员不可避免地会混淆哪些数据已经过验证，哪些尚未经过验证。这种混淆最终会导致某些数据未经验证就加以使用了。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="揭示系统数据或调试信息有助于攻击者了解系统并制定攻击计划。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:192" />
+          <option name="id" value="803" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="系统信息泄露" />
+          <option name="repairExample" value="将 axis.enableListQuery 设为 false，如下所示：&#10;&lt;pre&gt;&#10;&lt;deployment xmlns:java=&quot;http://xml.apache.org/axis/wsdd/providers/java&quot;&gt;&#10; &lt;globalConfiguration&gt;&#10;   &lt;parameter name=&quot;axis.enableListQuery&quot; value=&quot;false&quot;/&gt;&#10;...&#10;&lt;/pre&gt;" />
+          <option name="repairTip" value="当系统数据或调试信息通过输出流或者日志功能流出程序时，就会发生信息泄漏。&#10;&#10;&#10;在这种情况下，在 java_3+1+20/HammerHead.java的第 192 行上，参数 axis.enableListQuery 设置为 true。&#10;&lt;/Paragraph&gt;&#10;&#10;当将参数 axis.enableListQuery 设为 true 时，它会启用 Web 服务部署描述符 (WSDD) 列表。此功能会泄漏包含敏感信息（如 adminservice 密码）的当前系统配置。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="揭示系统数据或调试信息有助于攻击者了解系统并制定攻击计划。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:204" />
+          <option name="id" value="804" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="系统信息泄露" />
+          <option name="repairExample" value="将 axis.enableListQuery 设为 false，如下所示：&#10;&lt;pre&gt;&#10;&lt;deployment xmlns:java=&quot;http://xml.apache.org/axis/wsdd/providers/java&quot;&gt;&#10; &lt;globalConfiguration&gt;&#10;   &lt;parameter name=&quot;axis.enableListQuery&quot; value=&quot;false&quot;/&gt;&#10;...&#10;&lt;/pre&gt;" />
+          <option name="repairTip" value="当系统数据或调试信息通过输出流或者日志功能流出程序时，就会发生信息泄漏。&#10;&#10;&#10;在这种情况下，在 java_3+1+20/HammerHead.java的第 204 行上，参数 axis.enableListQuery 设置为 true。&#10;&lt;/Paragraph&gt;&#10;&#10;当将参数 axis.enableListQuery 设为 true 时，它会启用 Web 服务部署描述符 (WSDD) 列表。此功能会泄漏包含敏感信息（如 adminservice 密码）的当前系统配置。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;方法 &lt;INSERT IGNORE key=&quot;PrimaryCall.name&quot; /&gt; 是一种 JNI 调用。JNI 应用不当会导致 Java 应用程序很容易受到其他语言的安全漏洞攻击。&lt;AltParagraph&gt;Java Native Interface（JNI）应用不当会导致 Java 应用程序容易受到其他语言的安全漏洞攻击。 &lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:456" />
+          <option name="id" value="811" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="不安全的jni" />
+          <option name="repairExample" value="审计所有构成某个特定应用程序的源代码，包括在其他语言中执行的本地方法。审计期间，要确保能够正确地解释和处理 Java 和本地代码在边界检查和其他行为之间的差别。特别是确保在以下所有阶段都正确处理了共享对象：对象被传递到本地代码前、对象被本地代码应用期间以及对象被返回给 Java 应用程序后。" />
+          <option name="repairTip" value="当 Java 应用程序使用 JNI 调用以其他编程语言编写的代码时，会发生 Unsafe JNI 漏洞。 &#10;&lt;Paragraph&gt;&#10;在这种情况下，调用的 Java 本地函数是 &lt;INSERT IGNORE key=&quot;PrimaryLocation.file&quot; /&gt;中第 &lt;INSERT IGNORE key=&quot;PrimaryLocation.line&quot; /&gt; 行的 &lt;INSERT IGNORE key=&quot;PrimaryCall.name&quot; link=&quot;PrimaryLocation&quot; /&gt;。&#10;&lt;/Paragraph&gt;&#10;&lt;b&gt;示例：&lt;/b&gt;以下 Java 代码定义了一个名为 &lt;code&gt;Echo&lt;/code&gt; 的类。这个类声明了一个本地方法（下文定义），使用 C 语言将控制台上输入的命令回显给用户。&#10;&#10;&lt;pre&gt;&#10;    class Echo {&#10;&#9;public native void runEcho();&#10;&#10;&#9;static {&#10;&#9;&#9;System.loadLibrary(&quot;echo&quot;);&#10;&#9;&#9;}&#10;&#10;&#9;public static void main(String[] args) {&#10;&#9;&#9;new Echo().runEcho();&#10;&#9;&#9;}&#10;}&#10;&lt;/pre&gt;&#10;&#10;以下 C 语言代码定义了在 &lt;code&gt;Echo&lt;/code&gt; 类中实现的本地方法：&#10;&#10;&lt;pre&gt;&#10;#include &amp;lt;jni.h&amp;gt;&#10;#include &quot;Echo.h&quot; //the java class above compiled with javah&#10;#include &amp;lt;stdio.h&amp;gt;&#10;&#10;JNIEXPORT void JNICALL&#10;Java_Echo_runEcho(JNIEnv *env, jobject obj)&#10;{&#10;&#9;char buf[64];&#10;&#9;gets(buf);&#10;&#9;printf(buf);&#10;}&#10;&lt;/pre&gt;&#10;&#10;因为这个例子是在 Java 中实现的，所以看上去似乎可以避免诸如 buffer overflow 之类的内存问题。虽然 Java 在内存安全方面做的很好，但是该保护机制并不适用于其他语言编写的且通过 Java 本地接口 (JNI) 访问的源代码中出现的漏洞。尽管有 Java 提供的内存保护机制，但是这个例子中的 C 语言代码仍然很容易受到 buffer overflow 的攻击，因为它在没有执行任何输入检查的情况下就使用了 &lt;code&gt;gets()&lt;/code&gt;。 &#10;&#10;Sun Java(TM) 教程对 JNI 描述如下 [1]：&#10;&#10;一旦有了 JNI 框架，您的本地方法就可以像 Java 代码那样利用 Java 对象。本地方法可以创建 Java 对象（包括数组和字符串），并且检查和应用这些对象，以便执行各种相关的任务。本地方法也可以检查和应用由 Java 应用程序代码创建的对象。本地方法甚至可以更新由自己创建的或传递给它的 Java 对象，且更新后的对象可以应用到 Java 应用程序中。因此，在应用程序中，无论是本地语言还是 Java 语言都能创建、更新和访问 Java 对象，并在两种语言间共享这些对象。&#10;&#10;通过检查本地方法实现的源代码，可以轻松地发现上述例子中存在的漏洞。根据不同的 C 语言源代码和项目构建方式，这种方式可能在某些情况下不可行，但是多数情况下还是可行的。然而，这种能够在 Java 方法和本地方法间共享对象的能力会进一步加大潜在的风险。在 Java 中数据处理不当时，可能会导致本地代码出现意想不到的漏洞，同样本地代码中的不安全操作会破坏 Java 的数据结构。 &#10;&#10;通过 Java 应用程序访问的本地代码中出现的漏洞，通常与由本地语言编写的应用程序中存在的漏洞是一样的。这种攻击面临的唯一挑战是：攻击者需要确定 Java 应用程序是否使用了本地代码执行某些特定的操作。可以用多种方法实现上述目的，包括识别那些通常用本地代码实现的某些特定行为，或者利用 Java 应用程序中 system information leak 的漏洞（表明系统使用了 JNI）[2]。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;&lt;INSERT IGNORE key=&quot;PrimaryLocation.file&quot; /&gt; 中的方法 &lt;INSERT IGNORE key=&quot;EnclosingFunction.name&quot; /&gt; 不能从该类以外的任何方法中获得。它是一个 dead code。Dead code 是指从未以公共方法直接或间接执行的代码。&lt;AltParagraph&gt;此方法不能从该类以外的任何方法中获得。&lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:237" />
+          <option name="id" value="816" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="未被使用的方法" />
+          <option name="repairExample" value="无用方法有可能指出调度代码中的 bug 所在。 &#10;&#10;&lt;b&gt;例 3：&lt;/b&gt;如果类中一个名为 &lt;code&gt;getWitch()&lt;/code&gt; 的方法被标记为死方法，同时这个类还包含以下调度方法，那么这可能是由于复制粘帖错误而引起的。“w”应返回 &lt;code&gt;getWitch()&lt;/code&gt; 而不是 &lt;code&gt;getMummy()&lt;/code&gt;。&#10;&#10;&lt;pre&gt;&#10;public ScaryThing getScaryThing(char st) {&#10;  switch(st) {&#10;    case 'm':&#10;      return getMummy();&#10;    case 'w':&#10;      return getMummy();&#10;    default:&#10;      return getBlob();&#10;  }&#10;}&#10;&lt;/pre&gt;&#10;&#10;总之，您应该去修改或是删除 dead code。要修复 dead code，请通过公共方法直接或间接执行此 dead code。Dead code 不仅不能实现任何程序功能，还会带来额外的麻烦和维护负担。" />
+          <option name="repairTip" value="不会调用这个方法，或者仅仅通过其他 dead code 进行调用。&#10;&#10;&lt;b&gt;例 1：&lt;/b&gt;在下面这个类中，&lt;code&gt;doWork()&lt;/code&gt; 方法将永远不会被调用。&#10;&#10;&lt;pre&gt;&#10;public class Dead {&#10;  private void doWork() {&#10;    System.out.println(&quot;doing work&quot;);&#10;  }&#10;  public static void main(String[] args) {&#10;    System.out.println(&quot;running Dead&quot;);&#10;  }&#10;}&#10;&lt;/pre&gt;&#10;&#10;&lt;b&gt;例 2：&lt;/b&gt; 在下面这个类中，虽然两个私有方法相互调用，但是因为它们中的任何一个都不会在其他地方调用，所以最终还是 dead code。&#10;&#10;&lt;pre&gt;&#10;public class DoubleDead {&#10;  private void doTweedledee() {&#10;    doTweedledumb();&#10;  }&#10;  private void doTweedledumb() {&#10;    doTweedledee();&#10;  }&#10;  public static void main(String[] args) {&#10;    System.out.println(&quot;running DoubleDead&quot;);&#10;  }&#10;}&#10;&lt;/pre&gt;&#10;&#10;（在这里，我们应该庆幸没有使用这两种方法：调用其中任何一种方法都会导致死循环。）" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;类 &lt;INSERT IGNORE key=&quot;EnclosingClass.name&quot; /&gt; 是独立的，因此成员字段 &lt;INSERT IGNORE key=&quot;$dec.name$&quot; /&gt; 可以在各个用户之间共享。导致的结果是一个用户可以查看其他用户的数据。&lt;AltParagraph&gt;Servlet 成员字段可能允许一个用户查看其他用户的数据。&lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:135" />
+          <option name="id" value="817" />
+          <option name="leakLevel" value="高危" />
+          <option name="leakName" value="单例模式成员字段访问条件竞争" />
+          <option name="repairExample" value="不要为任何参数（常量除外）使用 Servlet 成员字段。（例如，确保所有成员字段都是 &lt;code&gt;static final&lt;/code&gt;）。&#10;&#10;当开发者需要把代码内某一部分中的数据传输到另一部分时，他们经常使用 Servlet 成员字段存储用户数据。如果您也是这么做的，可以考虑声明一个单独的类，并仅使用 Servlet“封装”这个新类。 &#10;&#10;&lt;b&gt;例 2：&lt;/b&gt;上述例子中的 bug 可以利用以下方式进行修正：&#10;&#10;&lt;pre&gt;&#10;public class GuestBook extends HttpServlet {&#10;&#10;   protected void doPost (HttpServletRequest req, HttpServletResponse res) {&#10;&#9;GBRequestHandler handler = new GBRequestHandler();&#10;&#9;handler.handle(req, res);&#10;   }&#10;}&#10;&#10;public class GBRequestHandler {&#10;&#10;   String name;&#10;&#10;   public void handle(HttpServletRequest req, HttpServletResponse res) {&#10;     name = req.getParameter(&quot;name&quot;);&#10;     ...&#10;     out.println(name + &quot;, thanks for visiting!&quot;);&#10;   }&#10;&#10;}&#10;&lt;/pre&gt;&#10;&#10;此外，Servlet 也可以利用同步代码块来访问 servlet 实例变量。但是，使用同步代码块可能会导致严重的性能问题。&#10;&#10;请注意，如果将字段访问封装在同步块中，则只有在该成员上的所有读取和写入操作均在同一同步块或方法中执行时方可防止出现问题。&#10;&#10;&lt;b&gt;示例 3：&lt;/b&gt;将示例 1 写入操作（分配）封装在一个同步块中将不会修复问题，因为线程将不得不锁定以修改 &lt;code&gt;name&lt;/code&gt; 字段，但是随后将释放锁定，从而使其他线程能够再次更改该值。如果在更改 &lt;code&gt;name&lt;/code&gt; 值后，第一个线程恢复执行操作，则输出的值将是第二个线程分配的值：&#10;&#10;&lt;pre&gt;&#10;public class GuestBook extends HttpServlet {&#10;&#10;   String name;&#10;&#10;   protected void doPost (HttpServletRequest req, HttpServletResponse res) {&#10;     synchronized(name) {&#10;        name = req.getParameter(&quot;name&quot;);&#10;     }&#10;     ...&#10;     out.println(name + &quot;, thanks for visiting!&quot;);&#10;   }&#10;}&#10;&lt;/pre&gt;&#10;&#10;为了解决争用条件，共享成员字段上的所有写入和读取操作应在同一同步块中自动运行：&#10;&#10;&lt;pre&gt;&#10;public class GuestBook extends HttpServlet {&#10;&#10;   String name;&#10;&#10;   protected void doPost (HttpServletRequest req, HttpServletResponse res) {&#10;     synchronized(name) {&#10;        name = req.getParameter(&quot;name&quot;);&#10;        ...&#10;        out.println(name + &quot;, thanks for visiting!&quot;);&#10;     }&#10;   }&#10;}&#10;&lt;/pre&gt;" />
+          <option name="repairTip" value="许多 Servlet 开发人员都不了解 Servlet 为单例模式。Servlet 只有一个实例，并通过使用和重复使用该单个实例来处理需要由不同线程同时处理的多个请求。 &#10;&#10;这种误解的共同后果是，开发者使用 Servlet 成员字段的这种方式会导致某个用户可能在无意中看到其他用户的数据。换言之，即把用户数据存储在 Servlet 成员字段中会引发数据访问的 race condition。&#10;&#10;&lt;b&gt;例 1：&lt;/b&gt;以下 Servlet 把请求参数值存储在成员字段中，然后将参数值返回给响应输出流。&#10;&#10;&lt;pre&gt;&#10;public class GuestBook extends HttpServlet {&#10;&#10;   String name;&#10;&#10;   protected void doPost (HttpServletRequest req, HttpServletResponse res) {&#10;     name = req.getParameter(&quot;name&quot;);&#10;     ...&#10;     out.println(name + &quot;, thanks for visiting!&quot;);&#10;   }&#10;}&#10;&lt;/pre&gt;&#10;&#10;当该代码在单一用户环境中正常运行时，如果有两个用户几乎同时访问 Servlet，可能会导致这两个请求以如下方式处理线程的插入：&#10;&#10;&#9;线程 1：&#9;将“&lt;code&gt;Dick&lt;/code&gt;”分配给 &lt;code&gt;name&lt;/code&gt;&#10;&#9;线程 &lt;code&gt;Jane&lt;/code&gt;”分配给 &lt;code&gt;name&lt;/code&gt;&#10;&#9;线程 1：&#9;print“&lt;code&gt;Jane, thanks for visiting!&lt;/code&gt;”&#10;&#9;线程 2：&#9;print“&lt;code&gt;Jane, thanks for visiting!&lt;/code&gt;”&#10;&#10;因此会向第一个用户显示第二个用户的用户名。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;&lt;INSERT IGNORE key=&quot;PrimaryLocation.file&quot; /&gt; 中的方法 &lt;INSERT IGNORE key=&quot;EnclosingFunction.name&quot; /&gt; 把一个不可序列化的对象作为 &lt;code&gt;HttpSession&lt;/code&gt; 属性存储，这会破坏应用程序的可靠性。&lt;AltParagraph&gt;把一个不可序列化的对象作为 &lt;code&gt;HttpSession&lt;/code&gt; 属性来储存会破坏应用程序的可靠性。&lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:184" />
+          <option name="id" value="818" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="使用Session储存不可序列化对象" />
+          <option name="repairExample" value="很多情况下，要修复这一问题，最简单的方法是让这个违反规则的对象实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。 &#10;&#10;&lt;b&gt;例 2：&lt;/b&gt; 例 1 中的代码应该用以下方式重写：&#10;&#10;&lt;pre&gt;&#10;public class DataGlob implements java.io.Serializable {&#10;   String globName;&#10;   String globValue;&#10;&#10;   public void addToSession(HttpSession session) {&#10;     session.setAttribute(&quot;glob&quot;, this);&#10;   }&#10;}&#10;&lt;/pre&gt;&#10;&#10;注意，对复杂的对象来说，存储在会话中的对象，其传递闭包必须是可序列化的。如果对象 A 引用对象 B，且对象 A 存储在会话中，那么 A 和 B 都必须实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。&#10;&#10;虽然实现 &lt;code&gt;Serializable&lt;/code&gt; 接口通常都很简单（因为该接口不要求类定义任何方法），但是某些类型的对象实现会引发一些相关问题。应密切注意引用外部资源文件的对象。例如，数据流和 JNI 都可能会引发一些相关问题。&#10;&#10;&lt;b&gt;例 3：&lt;/b&gt;使用类型检测调用可序列化对象。而不是使用：&#10;&#10;&lt;pre&gt;&#10;public static void addToSession(HttpServletRequest req,&#10;                     String attrib, Object obj)&#10;{&#10;  HttpSession sess = req.getSession(true);&#10;  sess.setAttribute(attrib, obj);&#10;}&#10;&lt;/pre&gt;&#10;&#10;采用如下方法编写：&#10;&#10;&lt;pre&gt;&#10;public static void addToSession(HttpServletRequest req,&#10;                     String attrib, Serializable ser) {&#10;  HttpSession sess = req.getSession(true);&#10;  sess.setAttribute(attrib, ser);&#10;}&#10;&lt;/pre&gt;" />
+          <option name="repairTip" value="一个 J2EE 应用程序可以利用多个 JVM，以提高应用程序的可靠性和性能。为了在最终用户中将多个 JVM 显示为单个的应用程序，J2EE 容器可以在多个 JVM 之间复制 &lt;code&gt;HttpSession&lt;/code&gt; 对象，所以当一个 JVM 不可用时，另一个 JVM 可以在不中断应用程序流程的情况下接替步骤的执行。&#10;&#10;为了使会话复制能够正常运行，作为应用程序属性存储在会话中的数值必须实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。 &#10;&#10;&lt;b&gt;例 1：&lt;/b&gt;下面这个类把自己添加到会话中，但由于它不是可序列化的，因此该会话就再也不能被复制了。&#10;&#10;&lt;pre&gt;&#10;public class DataGlob {&#10;   String globName;&#10;   String globValue;&#10;&#10;   public void addToSession(HttpSession session) {&#10;     session.setAttribute(&quot;glob&quot;, this);&#10;   }&#10;}&#10;&lt;/pre&gt;" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;&lt;INSERT IGNORE key=&quot;PrimaryLocation.file&quot; /&gt; 中的方法 &lt;INSERT IGNORE key=&quot;EnclosingFunction.name&quot; /&gt; 把一个不可序列化的对象作为 &lt;code&gt;HttpSession&lt;/code&gt; 属性存储，这会破坏应用程序的可靠性。&lt;AltParagraph&gt;把一个不可序列化的对象作为 &lt;code&gt;HttpSession&lt;/code&gt; 属性来储存会破坏应用程序的可靠性。&lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:185" />
+          <option name="id" value="819" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="使用Session储存不可序列化对象" />
+          <option name="repairExample" value="很多情况下，要修复这一问题，最简单的方法是让这个违反规则的对象实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。 &#10;&#10;&lt;b&gt;例 2：&lt;/b&gt; 例 1 中的代码应该用以下方式重写：&#10;&#10;&lt;pre&gt;&#10;public class DataGlob implements java.io.Serializable {&#10;   String globName;&#10;   String globValue;&#10;&#10;   public void addToSession(HttpSession session) {&#10;     session.setAttribute(&quot;glob&quot;, this);&#10;   }&#10;}&#10;&lt;/pre&gt;&#10;&#10;注意，对复杂的对象来说，存储在会话中的对象，其传递闭包必须是可序列化的。如果对象 A 引用对象 B，且对象 A 存储在会话中，那么 A 和 B 都必须实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。&#10;&#10;虽然实现 &lt;code&gt;Serializable&lt;/code&gt; 接口通常都很简单（因为该接口不要求类定义任何方法），但是某些类型的对象实现会引发一些相关问题。应密切注意引用外部资源文件的对象。例如，数据流和 JNI 都可能会引发一些相关问题。&#10;&#10;&lt;b&gt;例 3：&lt;/b&gt;使用类型检测调用可序列化对象。而不是使用：&#10;&#10;&lt;pre&gt;&#10;public static void addToSession(HttpServletRequest req,&#10;                     String attrib, Object obj)&#10;{&#10;  HttpSession sess = req.getSession(true);&#10;  sess.setAttribute(attrib, obj);&#10;}&#10;&lt;/pre&gt;&#10;&#10;采用如下方法编写：&#10;&#10;&lt;pre&gt;&#10;public static void addToSession(HttpServletRequest req,&#10;                     String attrib, Serializable ser) {&#10;  HttpSession sess = req.getSession(true);&#10;  sess.setAttribute(attrib, ser);&#10;}&#10;&lt;/pre&gt;" />
+          <option name="repairTip" value="一个 J2EE 应用程序可以利用多个 JVM，以提高应用程序的可靠性和性能。为了在最终用户中将多个 JVM 显示为单个的应用程序，J2EE 容器可以在多个 JVM 之间复制 &lt;code&gt;HttpSession&lt;/code&gt; 对象，所以当一个 JVM 不可用时，另一个 JVM 可以在不中断应用程序流程的情况下接替步骤的执行。&#10;&#10;为了使会话复制能够正常运行，作为应用程序属性存储在会话中的数值必须实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。 &#10;&#10;&lt;b&gt;例 1：&lt;/b&gt;下面这个类把自己添加到会话中，但由于它不是可序列化的，因此该会话就再也不能被复制了。&#10;&#10;&lt;pre&gt;&#10;public class DataGlob {&#10;   String globName;&#10;   String globValue;&#10;&#10;   public void addToSession(HttpSession session) {&#10;     session.setAttribute(&quot;glob&quot;, this);&#10;   }&#10;}&#10;&lt;/pre&gt;" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;&lt;INSERT IGNORE key=&quot;PrimaryLocation.file&quot; /&gt; 中的方法 &lt;INSERT IGNORE key=&quot;EnclosingFunction.name&quot; /&gt; 把一个不可序列化的对象作为 &lt;code&gt;HttpSession&lt;/code&gt; 属性存储，这会破坏应用程序的可靠性。&lt;AltParagraph&gt;把一个不可序列化的对象作为 &lt;code&gt;HttpSession&lt;/code&gt; 属性来储存会破坏应用程序的可靠性。&lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:495" />
+          <option name="id" value="820" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="使用Session储存不可序列化对象" />
+          <option name="repairExample" value="很多情况下，要修复这一问题，最简单的方法是让这个违反规则的对象实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。 &#10;&#10;&lt;b&gt;例 2：&lt;/b&gt; 例 1 中的代码应该用以下方式重写：&#10;&#10;&lt;pre&gt;&#10;public class DataGlob implements java.io.Serializable {&#10;   String globName;&#10;   String globValue;&#10;&#10;   public void addToSession(HttpSession session) {&#10;     session.setAttribute(&quot;glob&quot;, this);&#10;   }&#10;}&#10;&lt;/pre&gt;&#10;&#10;注意，对复杂的对象来说，存储在会话中的对象，其传递闭包必须是可序列化的。如果对象 A 引用对象 B，且对象 A 存储在会话中，那么 A 和 B 都必须实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。&#10;&#10;虽然实现 &lt;code&gt;Serializable&lt;/code&gt; 接口通常都很简单（因为该接口不要求类定义任何方法），但是某些类型的对象实现会引发一些相关问题。应密切注意引用外部资源文件的对象。例如，数据流和 JNI 都可能会引发一些相关问题。&#10;&#10;&lt;b&gt;例 3：&lt;/b&gt;使用类型检测调用可序列化对象。而不是使用：&#10;&#10;&lt;pre&gt;&#10;public static void addToSession(HttpServletRequest req,&#10;                     String attrib, Object obj)&#10;{&#10;  HttpSession sess = req.getSession(true);&#10;  sess.setAttribute(attrib, obj);&#10;}&#10;&lt;/pre&gt;&#10;&#10;采用如下方法编写：&#10;&#10;&lt;pre&gt;&#10;public static void addToSession(HttpServletRequest req,&#10;                     String attrib, Serializable ser) {&#10;  HttpSession sess = req.getSession(true);&#10;  sess.setAttribute(attrib, ser);&#10;}&#10;&lt;/pre&gt;" />
+          <option name="repairTip" value="一个 J2EE 应用程序可以利用多个 JVM，以提高应用程序的可靠性和性能。为了在最终用户中将多个 JVM 显示为单个的应用程序，J2EE 容器可以在多个 JVM 之间复制 &lt;code&gt;HttpSession&lt;/code&gt; 对象，所以当一个 JVM 不可用时，另一个 JVM 可以在不中断应用程序流程的情况下接替步骤的执行。&#10;&#10;为了使会话复制能够正常运行，作为应用程序属性存储在会话中的数值必须实现 &lt;code&gt;Serializable&lt;/code&gt; 接口。 &#10;&#10;&lt;b&gt;例 1：&lt;/b&gt;下面这个类把自己添加到会话中，但由于它不是可序列化的，因此该会话就再也不能被复制了。&#10;&#10;&lt;pre&gt;&#10;public class DataGlob {&#10;   String globName;&#10;   String globValue;&#10;&#10;   public void addToSession(HttpSession session) {&#10;     session.setAttribute(&quot;glob&quot;, this);&#10;   }&#10;}&#10;&lt;/pre&gt;" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;Servlet &lt;INSERT IGNORE key=&quot;EnclosingClass.name&quot; /&gt; 未捕获到 &lt;INSERT IGNORE key=&quot;EnclosingFunction.name&quot; /&gt; 中的所有异常。如果 Servlet 未捕获到所有异常，则可能会泄漏调试信息，从而有利于攻击者进行攻击。&lt;AltParagraph&gt;如果 Servlet 未捕获到所有异常，则可能会泄漏调试信息，从而有利于攻击者进行攻击。&lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:119" />
+          <option name="id" value="821" />
+          <option name="leakLevel" value="中危" />
+          <option name="leakName" value="不完全的异常捕获" />
+          <option name="repairExample" value="所有顶级 Servlet 方法都应捕获 &lt;code&gt;Throwable&lt;/code&gt;，从而尽可能降低调用 Servlet 错误响应机制的可能性。 &#10;&#10;&lt;b&gt;例 3：&lt;/b&gt;例 1 中的代码可以按以下方式进行重写：&#10;&#10;&lt;pre&gt;&#10;protected void doPost (HttpServletRequest req,&#10;                    HttpServletResponse res) {&#10;      try {&#10;          String ip = req.getRemoteAddr();&#10;          InetAddress addr = InetAddress.getByName(ip);&#10;      ...&#10;          out.println(&quot;hello &quot; + addr.getHostName());&#10;      }catch (Throwable t) {&#10;          logger.error(&quot;caught throwable at top level&quot;, t);&#10;      }&#10;  }&#10;}&#10;&lt;/pre&gt;" />
+          <option name="repairTip" value="当 Servlet 抛出一个异常时，Servlet 容器回传给用户的默认错误响应通常会包含调试信息。这些信息对于攻击者来说是十分有用的。例如，一个堆栈跟踪可能会给攻击者显示 SQL 查询字串、即使用的数据库类型以及应用程序容器的版本。攻击者可以从这些信息中找到这些组件中存在的漏洞。&#10;&#10;&lt;b&gt;例 1：&lt;/b&gt;在以下方法中，DNS 解析失败会导致 Servlet 抛出一个异常。&#10;&#10;&lt;pre&gt;&#10;protected void doPost (HttpServletRequest req,&#10;                    HttpServletResponse res)&#10;              throws IOException {&#10;    String ip = req.getRemoteAddr();&#10;    InetAddress addr = InetAddress.getByName(ip);&#10;    ...&#10;    out.println(&quot;hello &quot; + addr.getHostName());&#10;}&#10;&lt;/pre&gt;&#10;&#10;&lt;b&gt;例 2：&lt;/b&gt;如果“name”参数并未包含在请求中，那么以下方法会抛出一个 &lt;code&gt;NullPointerException&lt;/code&gt; 异常。&#10;&#10;&lt;pre&gt;&#10;protected void doPost (HttpServletRequest req,&#10;                    HttpServletResponse res)&#10;              throws IOException {&#10;    String name = getParameter(&quot;name&quot;);&#10;    ...&#10;    out.println(&quot;hello &quot; + name.trim());&#10;}&#10;&lt;/pre&gt;" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="&lt;Paragraph&gt;类 &lt;INSERT IGNORE key=&quot;EnclosingClass.name&quot; /&gt; 包含调试代码，它可以在部署的 web 应用程序中建立一些意想不到的入口点。&lt;AltParagraph&gt;调试代码可以在部署的 web 应用程序中建立一些意想不到的入口点。&lt;/AltParagraph&gt;&lt;/Paragraph&gt;" />
+          <option name="filePath" value="java_3+1+20/test/src/Main.java:2" />
+          <option name="id" value="822" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="存在调试代码" />
+          <option name="repairExample" value="务必在部署应用程序的产品版之前删除调试代码。无论是否存在直接的安全威胁，一旦早期开发阶段结束，就没有任何理由将这样的代码保留在应用程序中。" />
+          <option name="repairTip" value="开发过程中一般会为了调试和测试目的增加一些“后门”代码，这些代码不会随应用程序一起提供或部署。如果这类调试代码无意中被保留在应用程序中，则会导致应用程序向计划外的交互模式开放。这些后门入口点很容易产生安全隐患，因为它们不在当初的设计或者测试的考虑之内，并且不会出现在应用程序设计中的操作环境里。&#10;&#10;遗忘调试代码中最常见例子出现在 web 应用程序中的 &lt;code&gt;main()&lt;/code&gt; 方法。尽管这在产品的开发过程中是完全可以接受的，但是属于 J2EE 应用程序中的那部分类不应该定义 &lt;code&gt;main()&lt;/code&gt;。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="使用标准输出或标准错误而不是专门的日志记录工具，会导致难以监控程序运行状况。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:245" />
+          <option name="id" value="823" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="不合理的log" />
+          <option name="repairExample" value="使用 Python 日志记录工具而不是 print、sys.stdout 或 sys.stderr。&#10;&#10;例 2： 举例来说，上面的“hello world”程序可以用 logging 模块重写，如下所示：&#10;&#10;import logging&#10;logging.debug(&quot;hello world&quot;)" />
+          <option name="repairTip" value="例 1： 开发人员学习编写的第一个 Python 程序通常都是如下所示的样子：&#10;&#10;print(&quot;hello world&quot;)&#10;&#10;多数程序员深入了解 Python 的许多精妙之处后，有一部分人仍会依赖于这一基础知识，始终使用 print() 或 sys.stdout.write() 编写进行标准输出的消息。&#10;&#10;这里的问题是，直接在标准输出流或标准错误流中写入信息通常会作为一种非结构化日志记录形式使用。结构化日志记录系统提供了各种要素，如日志级别、统一的格式、日志标示符、次数统计，而且，可能最重要的是，将日志信息指向正确位置的功能。当系统输出流的使用与正确使用日志记录功能的代码混合在一起时，得出的结果往往是一个保存良好但缺少重要信息的日志。&#10;&#10;开发者普遍认为需要使用结构化日志记录，但是很多人在“产前”的软件开发中仍使用系统输出流功能。如果您正在检查的代码是在开发阶段的初期生成的，那么对 sys.stdout 或 sys.stderr 的使用可能会在转向结构化日志记录系统的过程中导致漏洞。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="使用标准输出或标准错误而不是专门的日志记录工具，会导致难以监控程序运行状况。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:246" />
+          <option name="id" value="824" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="不合理的log" />
+          <option name="repairExample" value="使用 Python 日志记录工具而不是 print、sys.stdout 或 sys.stderr。&#10;&#10;例 2： 举例来说，上面的“hello world”程序可以用 logging 模块重写，如下所示：&#10;&#10;import logging&#10;logging.debug(&quot;hello world&quot;)" />
+          <option name="repairTip" value="例 1： 开发人员学习编写的第一个 Python 程序通常都是如下所示的样子：&#10;&#10;print(&quot;hello world&quot;)&#10;&#10;多数程序员深入了解 Python 的许多精妙之处后，有一部分人仍会依赖于这一基础知识，始终使用 print() 或 sys.stdout.write() 编写进行标准输出的消息。&#10;&#10;这里的问题是，直接在标准输出流或标准错误流中写入信息通常会作为一种非结构化日志记录形式使用。结构化日志记录系统提供了各种要素，如日志级别、统一的格式、日志标示符、次数统计，而且，可能最重要的是，将日志信息指向正确位置的功能。当系统输出流的使用与正确使用日志记录功能的代码混合在一起时，得出的结果往往是一个保存良好但缺少重要信息的日志。&#10;&#10;开发者普遍认为需要使用结构化日志记录，但是很多人在“产前”的软件开发中仍使用系统输出流功能。如果您正在检查的代码是在开发阶段的初期生成的，那么对 sys.stdout 或 sys.stderr 的使用可能会在转向结构化日志记录系统的过程中导致漏洞。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="使用标准输出或标准错误而不是专门的日志记录工具，会导致难以监控程序运行状况。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:307" />
+          <option name="id" value="825" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="不合理的log" />
+          <option name="repairExample" value="使用 Python 日志记录工具而不是 print、sys.stdout 或 sys.stderr。&#10;&#10;例 2： 举例来说，上面的“hello world”程序可以用 logging 模块重写，如下所示：&#10;&#10;import logging&#10;logging.debug(&quot;hello world&quot;)" />
+          <option name="repairTip" value="例 1： 开发人员学习编写的第一个 Python 程序通常都是如下所示的样子：&#10;&#10;print(&quot;hello world&quot;)&#10;&#10;多数程序员深入了解 Python 的许多精妙之处后，有一部分人仍会依赖于这一基础知识，始终使用 print() 或 sys.stdout.write() 编写进行标准输出的消息。&#10;&#10;这里的问题是，直接在标准输出流或标准错误流中写入信息通常会作为一种非结构化日志记录形式使用。结构化日志记录系统提供了各种要素，如日志级别、统一的格式、日志标示符、次数统计，而且，可能最重要的是，将日志信息指向正确位置的功能。当系统输出流的使用与正确使用日志记录功能的代码混合在一起时，得出的结果往往是一个保存良好但缺少重要信息的日志。&#10;&#10;开发者普遍认为需要使用结构化日志记录，但是很多人在“产前”的软件开发中仍使用系统输出流功能。如果您正在检查的代码是在开发阶段的初期生成的，那么对 sys.stdout 或 sys.stderr 的使用可能会在转向结构化日志记录系统的过程中导致漏洞。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="使用标准输出或标准错误而不是专门的日志记录工具，会导致难以监控程序运行状况。" />
+          <option name="filePath" value="java_3+1+20/test/src/Main.java:3" />
+          <option name="id" value="826" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="不合理的log" />
+          <option name="repairExample" value="使用 Python 日志记录工具而不是 print、sys.stdout 或 sys.stderr。&#10;&#10;例 2： 举例来说，上面的“hello world”程序可以用 logging 模块重写，如下所示：&#10;&#10;import logging&#10;logging.debug(&quot;hello world&quot;)" />
+          <option name="repairTip" value="例 1： 开发人员学习编写的第一个 Python 程序通常都是如下所示的样子：&#10;&#10;print(&quot;hello world&quot;)&#10;&#10;多数程序员深入了解 Python 的许多精妙之处后，有一部分人仍会依赖于这一基础知识，始终使用 print() 或 sys.stdout.write() 编写进行标准输出的消息。&#10;&#10;这里的问题是，直接在标准输出流或标准错误流中写入信息通常会作为一种非结构化日志记录形式使用。结构化日志记录系统提供了各种要素，如日志级别、统一的格式、日志标示符、次数统计，而且，可能最重要的是，将日志信息指向正确位置的功能。当系统输出流的使用与正确使用日志记录功能的代码混合在一起时，得出的结果往往是一个保存良好但缺少重要信息的日志。&#10;&#10;开发者普遍认为需要使用结构化日志记录，但是很多人在“产前”的软件开发中仍使用系统输出流功能。如果您正在检查的代码是在开发阶段的初期生成的，那么对 sys.stdout 或 sys.stderr 的使用可能会在转向结构化日志记录系统的过程中导致漏洞。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="外部类可更改非最终公共静态字段。" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:85" />
+          <option name="id" value="827" />
+          <option name="leakLevel" value="低危" />
+          <option name="leakName" value="非final的公开静态成员" />
+          <option name="repairExample" value="如果您希望将字段作为常数值公开，则应将该字段声明为 &lt;code&gt;public static final&lt;/code&gt;，否则就将该字段声明为 &lt;code&gt;private&lt;/code&gt;。&#10;&#10;&lt;b&gt;例 2：&lt;/b&gt;&#10;&lt;pre&gt;&#10;public class MyClass&#10;{&#10;public static final int ERROR_CODE = 123;&#10;//...&#10;}&lt;/pre&gt;" />
+          <option name="repairTip" value="通常情况下，您不会希望为外部类提供对象成员字段的直接访问路径，因为任意外部类都可以更改公共字段。面向对象的良好设计使用 Encapsulation 来防止将实现详细信息（例如成员字段）暴露给其他类。此外，如果系统假定此字段不可更改，则恶意代码可能能够逆向更改系统的行为。&#10;&#10;&lt;b&gt;示例 1：&lt;/b&gt;在以下代码中，字段 &lt;code&gt;ERROR_CODE&lt;/code&gt; 已声明为公共、静态和非最终：&#10;&#10;&lt;pre&gt;&#10;public class MyClass&#10;{&#10;public static int ERROR_CODE = 100;&#10;//...&#10;}&lt;/pre&gt;&#10;&#10;在这种情况下，恶意代码可能能够更改此错误代码并导致程序出现意外行为。" />
+        </ItemVo>
+        <ItemVo>
+          <option name="createdTime" value="2022-12-16 17:48:39" />
+          <option name="description" value="暂无" />
+          <option name="filePath" value="java_3+1+20/HammerHead.java:78" />
+          <option name="id" value="808" />
+          <option name="leakLevel" value="提示" />
+          <option name="leakName" value="常量名命名规范错误" />
+          <option name="repairExample" value="暂无" />
+          <option name="repairTip" value="暂无" />
+        </ItemVo>
+      </list>
+    </option>
+  </component>
+</project>
